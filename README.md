@@ -2,9 +2,9 @@
 
 
 ## Quickstart
-1 Download https://ofbiz.apache.org/download.html
-2 ./gradlew cleanAll loadDefault
-3 ./gradlew ofbiz
+1. Download https://ofbiz.apache.org/download.html
+2. ./gradlew cleanAll loadDefault
+3. ./gradlew ofbiz
 4. https://localhost:8443/accounting
 
 ## Todo
