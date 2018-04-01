@@ -11,3 +11,4 @@
 ### Identify what data is needed outside ERP
 ### Identify how users need to call in to ERP
 ### Define rest API https://cwiki.apache.org/confluence/display/OFBIZ/Export+service+using+REST
+### Have docker image be built from forked source or have the docker file build from forked source
