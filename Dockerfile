@@ -50,6 +50,8 @@
 FROM  ubuntu:16.04
 MAINTAINER Julian Smith <julian.smith@blockfreight.com>
 
+EXPOSE 8443:8443
+
 # Install the reference implementation of OFBiz  
 RUN apt-get update && \
     apt-get install -y --no-install-recommends wget unzip default-jdk && \
