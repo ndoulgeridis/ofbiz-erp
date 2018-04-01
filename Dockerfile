@@ -47,3 +47,20 @@
 ##  Package Dockerfile is a package that defines the Blockfreight, Inc. - OFBiz (ERP) Docker Image
 ##  and provides some useful functions to work with the BF_TX token ecosystem.
 
+FROM  ubuntu:16.04
+MAINTAINER Julian Smith <julian.smith@blockfreight.com>
+
+# Install the reference implementation of OFBiz  
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget unzip default-jdk && \
+    wget http://mirror.dsrg.utoronto.ca/apache/ofbiz/apache-ofbiz-16.11.04.zip && \
+    unzip apache-ofbiz-16.11.04.zip
+
+# Install the reference implementation of OFBiz  
+WORKDIR apache-ofbiz-16.11.04
+
+RUN ./gradlew cleanAll loadDefault
+
+CMD ./gradlew ofbiz
+
+
