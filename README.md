@@ -1,14 +1,17 @@
 # Blockfreight, Inc. ERP
 
+### Quickstart ###
 
-## Quickstart
-1. Download https://ofbiz.apache.org/download.html
-2. ./gradlew cleanAll loadDefault
-3. ./gradlew ofbiz
-4. https://localhost:8443/accounting
+`docker build -t apache-ofbiz . `
 
-## Todo
-### Identify what data is needed outside ERP
-### Identify how users need to call in to ERP
-### Define rest API https://cwiki.apache.org/confluence/display/OFBIZ/Export+service+using+REST
-### Have docker image be built from forked source or have the docker file build from forked source
+### Then start a container running: ###
+
+`docker run -d -p 8443:8443 --name apache-ofbiz apache-ofbiz`
+
+### Visit OFBiz through your browser:
+
+[Order Back Office](https://localhost:8443/ordermgr)
+[Accounting Back Office](https://localhost:8443/accounting)
+[Administrator interface](https://localhost:8443/webtools)
+
+NOTE: You can log in with the user __admin__ and password __ofbiz__.
