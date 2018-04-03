@@ -75,6 +75,16 @@ RUN apt­get install pgadmin3
 # Install PostgreSQL - PostgreSQL ­Java Library
 RUN apt­get install libpostgresql­java
 
+# Setup PostgreSQL
+RUN -i -u postgres
+RUN psql
+
+RUN CREATE USER root WITH PASSWORD 'root';
+RUN CREATE DATABASE "test";
+RUN GRANT ALL ON DATABASE "test" TO root;
+RUN \q
+RUN $ exit
+
 # Notes: postgresql libpq5 postgresql-9.5 postgresql-client-9.5 postgresql-client-common postgresql-contrib
 
 # Install NGinx
