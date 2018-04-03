@@ -64,3 +64,10 @@ RUN apt-get update && \
 WORKDIR apache-ofbiz-16.11.04
 RUN ./gradlew cleanAll loadDefault
 CMD ./gradlew ofbiz
+
+## TODO
+
+## Database -  Add Postgresql
+## Web Proxy - Add NGinx
+## Data - Add Persistent Storage
+
