@@ -2,6 +2,8 @@
 
 ### Quickstart ###
 
+`docker pull blockfreight/bftx-erp`
+
 `docker build -t apache-ofbiz . `
 
 ### Then start a container running: ###
