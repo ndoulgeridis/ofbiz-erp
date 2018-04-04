@@ -63,7 +63,7 @@ RUN apt update -y
 RUN apt upgrade -y
 
 # Update package manager and update default applications.
-RUN apt install -y software-properties-common python-software-properties wget unzip net-tools
+RUN apt install -y software-properties-common wget unzip net-tools
 RUN add-apt-repository -y ppa:webupd8team/java
 RUN apt update -y
 RUN apt install -y oracle-java8-installer
