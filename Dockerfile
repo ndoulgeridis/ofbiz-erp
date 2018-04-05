@@ -110,7 +110,7 @@ RUN	unzip apache-ofbiz-16.11.04.zip
 # Install the reference implementation of OFBiz
 WORKDIR apache-ofbiz-16.11.04
 RUN ./gradlew cleanAll loadDefault
-CMD ./gradlew 'ofbizBackground --start'
+CMD ./gradlew ofbiz
 
 # TODO
 
