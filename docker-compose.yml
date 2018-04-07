@@ -56,6 +56,8 @@
 
 version: '2'
 services:
+
+    # Configure Nginx
     nginx_proxy:
         container_name: nginx_proxy
         image: jwilder/nginx-proxy
@@ -83,6 +85,7 @@ services:
             - nginx_proxy
         restart: always
 
+    # Configure Ofbiz
     ofbiz:
         container_name: ofbiz
         build: ./ofbiz
@@ -91,27 +94,36 @@ services:
         depends_on:
            - postgresql
            - nginx_letsencrypt_companion
+        
+        # Configure Environment Variables
+        env_file:
+           - ./config.env
         environment:
-           DEFAULT_HOST: "erp.blockfreight.com"
-           VIRTUAL_HOST: "erp.blockfreight.com"
-           LETSENCRYPT_HOST: "erp.blockfreight.com"
-           LETSENCRYPT_EMAIL: "SET_AN_EMAIL_TO_GET_LETS_ENCRYPT_WARNINGS"
-           POSTGRES_USER: "ofbiz"
-           POSTGRES_PASSWORD: "ofbiz"
-           OFBIZ_DB: "ofbiz"
-           OFBIZ_OLAP_DB: "ofbizolap"
-           OFBIZ_TENANT_DB: "ofbiztentant"
+          DEFAULT_HOST: ${ENV_DEFUALT_HOST}
+          VIRTUAL_HOST: ${ENV_VIRTUAL_HOST}
+          LETSENCRYPT_HOST: ${ENV_LETSENCRYPT_HOST}
+          LETSENCRYPT_EMAIL: ${ENV_LETSENCRYPT_EMAIL}
+          POSTGRES_USER: ${ENV_POSTGRES_USER}
+          POSTGRES_PASSWORD: ${ENV_POSTGRES_PASSWORD}
+          OFBIZ_DB: ${ENV_OFBIZ_DB}
+          OFBIZ_OLAP_DB: ${ENV_OFBIZ_OLAP_DB}
+          OFBIZ_TENANT_DB: ${ENV_OFBIZ_TENANT_DB}
         restart: always
 
+    # Configure PostgreSQL
     postgresql:
         container_name: postgresql
         build: postgres
+
+        # Configure Environment Variables
+        env_file:
+           - ./config.env
         environment:
-            POSTGRES_USER: "ofbiz"
-            POSTGRES_PASSWORD: "ofbiz"
-            OFBIZ_DB: "ofbizf"
-            OFBIZ_OLAP_DB: "ofbizolap"
-            OFBIZ_TENANT_DB: "ofbiztentant"
+            POSTGRES_USER: ${ENV_POSTGRES_USER}
+            POSTGRES_PASSWORD: ${ENV_POSTGRES_PASSWORD}
+            OFBIZ_DB: ${ENV_OFBIZ_DB}
+            OFBIZ_OLAP_DB: ${ENV_OFBIZ_OLAP_DB}
+            OFBIZ_TENANT_DB: ${ENV_OFBIZ_TENANT_DB}
         volumes:
             - pgdata:/var/lib/postgresql/data
         restart: always
