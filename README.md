@@ -1,21 +1,33 @@
 # Blockfreight, Inc. ERP
 
-### Quickstart
+### Quickstart ###
 
-`docker pull blockfreight/bftx-erp`
-
-### Start Ofbiz container:
-
-`docker run -it -p 8443:8443 --name apache-ofbiz apache-ofbiz`
-
-### Update image
-
-`docker build -t apache-ofbiz .`
+1. Edit docker-compose.yml with right parameters according your needs:
+```  
+   DEFAULT_HOST: "erp.blockfreight.com"
+   VIRTUAL_HOST: "erp.blockfreight.com"
+   LETSENCRYPT_HOST: "erp.blockfreight.com"
+   LETSENCRYPT_EMAIL: "SET_AN_EMAIL_TO_GET_LETS_ENCRYPT_WARNINGS"
+   POSTGRES_USER: "ofbiz"
+   POSTGRES_PASSWORD: "ofbiz"
+   OFBIZ_DB: "ofbiz"
+   OFBIZ_OLAP_DB: "ofbizolap"
+   OFBIZ_TENANT_DB: "ofbiztentant"   
+```   
+2. Be sure POSTGRES_USER, POSTGRES_PASSWORD, OFBIZ_DB, OFBIZ_OLAP_DB and OFBIZ_TENANT_DB are same both in ofbiz and postgresql block.
+3. Start everything running:
+```
+    docker-compose up -d 
+```    
+4. Wait a bit and then you can access everything from the domain you provided in parameters. By default it redirects to SSL.
+5. Postgresql is persisting data in volume pgdata. Of course a proper backup policy for DB is needed
 
 ### Visit OFBiz through your browser:
 
-- [Order Back Office](https://localhost:8443/ordermgr) - https://localhost:8443/ordermgr
-- [Accounting Back Office](https://localhost:8443/accounting) - https://localhost:8443/accounting
-- [Administrator interface](https://localhost:8443/webtools) - https://localhost:8443/webtools
+[Order Back Office](https://your-domain/ordermgr)
 
-NOTE: You can log in with the user admin and password ofbiz
+[Accounting Back Office](https://your-domain/accounting)
+
+[Administrator interface](https://your-domain/webtools)
+
+NOTE: You can log in with the user admin and password ofbiz for the first time and you are prompted to change password.

@@ -1,8 +1,8 @@
-#  File: ./Dockerfile
-#  Summary: An implementation for early-stage venture-backed startups.
+#  File: ./docker-compose.yml
+#  Summary: An implementation of Apache OFBiz for early-stage venture-backed startups.
 #  License: MIT License
 #  Company: Blockfreight, Inc.
-#  Author: Julian Smith
+#  Author: Julian Smith <julian.smith@blockfreight.com>, Jerram Watters <jerram.watters@blockfreight.com>, Nick Doulgeridis <nickdoulgeridis@gmail.com>
 #  Site: https://blockfreight.com
 #  Support: <support@blockfreight.com>
 
@@ -44,75 +44,77 @@
 #  =================================================================================================================================================
 #  =================================================================================================================================================
 
-# Use an official Ubuntu 16.04 Debian-based Linux operating system release as a parent image.
-FROM  ubuntu:16.04
+# https://docs.docker.com/compose/yml/
+# Each service defined in docker-compose.yml must specify exactly one of
+# image or build. Other keys are optional, and are analogous to their
+# docker run command-line counterparts.
+#
+# As with docker run, options specified in the Dockerfile (e.g., CMD,
+# EXPOSE, VOLUME, ENV) are respected by default - we don't need to
+# specify them again in docker-compose.yml.
+#
 
-#  Package Dockerfile is a package that defines the Blockfreight, Inc. - OFBiz (ERP) Docker Image
-#  and provides some useful functions to work with the BF_TX token ecosystem.
-MAINTAINER Julian Smith <julian.smith@blockfreight.com>
+version: '2'
+services:
+    nginx_proxy:
+        container_name: nginx_proxy
+        image: jwilder/nginx-proxy
+        volumes:
+           - /etc/nginx/vhost.d
+           - /usr/share/nginx/html
+           - /var/run/docker.sock:/tmp/docker.sock:ro
+           - ./certs:/etc/nginx/certs:ro
+        ports:
+           - 80:80
+           - 443:443
+        labels:
+           com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+        restart: always
 
-# Enable Doccker Ports - Primary ['1'] Secondary ['2'] Tertiary ['3']
-# 80:http(1) 443:https(1) 5432:PostgreSQL(1) 8080:http(2) 8081:http(3) 8443:https(2)
-EXPOSE 80 443 5432 8080 8081 8443
+    nginx_letsencrypt_companion:
+        container_name: nginx_letsencrypt_companion
+        image: jrcs/letsencrypt-nginx-proxy-companion
+        volumes:
+            - ./certs:/etc/nginx/certs:rw
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        volumes_from:
+            - nginx_proxy
+        depends_on:
+            - nginx_proxy
+        restart: always
 
-RUN echo "debconf shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections
-RUN echo "debconf shared/accepted-oracle-license-v1-1 seen true" | debconf-set-selections
-RUN export DEBIAN_FRONTEND=noninteractive
+    ofbiz:
+        container_name: ofbiz
+        build: ./ofbiz
+        external_links:
+           - postgresql:postgresql
+        depends_on:
+           - postgresql
+           - nginx_letsencrypt_companion
+        environment:
+           DEFAULT_HOST: "erp.blockfreight.com"
+           VIRTUAL_HOST: "erp.blockfreight.com"
+           LETSENCRYPT_HOST: "erp.blockfreight.com"
+           LETSENCRYPT_EMAIL: "SET_AN_EMAIL_TO_GET_LETS_ENCRYPT_WARNINGS"
+           POSTGRES_USER: "ofbiz"
+           POSTGRES_PASSWORD: "ofbiz"
+           OFBIZ_DB: "ofbiz"
+           OFBIZ_OLAP_DB: "ofbizolap"
+           OFBIZ_TENANT_DB: "ofbiztentant"
+        restart: always
 
-RUN apt update -y
-RUN apt upgrade -y
+    postgresql:
+        container_name: postgresql
+        build: postgres
+        environment:
+            POSTGRES_USER: "ofbiz"
+            POSTGRES_PASSWORD: "ofbiz"
+            OFBIZ_DB: "ofbizf"
+            OFBIZ_OLAP_DB: "ofbizolap"
+            OFBIZ_TENANT_DB: "ofbiztentant"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        restart: always
 
-# Update package manager and update default applications.
-RUN apt install -y software-properties-common wget unzip net-tools
-RUN add-apt-repository -y ppa:webupd8team/java
-RUN apt update -y
-RUN apt install -y oracle-java8-installer
-
-RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> ~/.bashrc
-RUN /bin/bash -c "source ~/.bashrc"
-
-# Install pre-requisites applications to support OFBiz in production.
-
-# Install PostgreSQL - core database server
-# RUN apt­get install postgresql-9.6
-# PostgreSQL - client libraries and client binaries
-# RUN apt­get install postgresql-client-9.6
-# PostgreSQL - additional supplied modules
-# RUN apt­get install postgresql-contrib-9.6
-# PostgreSQL - libraries and headers for C language frontend development
-# RUN apt­get install libpq-dev
-# PostgreSQL - libraries and headers for C language backend development
-# RUN apt­get install postgresql-server-dev-9.6
-# PostgreSQL - pgAdmin III graphical administration utility
-# RUN apt­get install pgadmin3
-# Install PostgreSQL - PostgreSQL ­Java Library
-# RUN apt­get install libpostgresql­java
-
-# Setup PostgreSQL
-#RUN -i -u postgres
-#RUN psql
-
-#RUN CREATE USER root WITH PASSWORD 'root';
-#RUN CREATE DATABASE "test";
-#RUN GRANT ALL ON DATABASE "test" TO root;
-#RUN \q
-#RUN $ exit
-
-# Notes: postgresql libpq5 postgresql-9.5 postgresql-client-9.5 postgresql-client-common postgresql-contrib
-
-# Install NGinx
-#RUN apt­get install nginx­full
-
-# Install the reference implementation of OFBiz
-RUN	wget http://mirror.dsrg.utoronto.ca/apache/ofbiz/apache-ofbiz-16.11.04.zip
-RUN	unzip apache-ofbiz-16.11.04.zip
-
-# Install the reference implementation of OFBiz
-WORKDIR apache-ofbiz-16.11.04
-RUN ./gradlew cleanAll loadDefault
-CMD ./gradlew ofbiz
-
-# TODO
-
-# Web Proxy - Add NGinx
-# Data - Add Persistent Storage
+volumes:
+    pgdata:
