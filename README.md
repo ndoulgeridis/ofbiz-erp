@@ -2,7 +2,7 @@
 
 ### Quickstart ###
 
-1. Edit docker-compose.yml with right parameters according your needs:
+1. Edit environment variables in config.env with right parameters according your needs:
 ```  
    DEFAULT_HOST: "erp.blockfreight.com"
    VIRTUAL_HOST: "erp.blockfreight.com"
